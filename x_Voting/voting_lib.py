@@ -113,12 +113,35 @@ class Voting:
 
             self.students[v_id]["v_mark"] += 1
 
+            self.students[v_id]["voter"].append(self.db[l_id]["name"])
+
             print("Congratulation you are voted!")
             print("{} now voting mark is : {}".format(self.students[v_id]["name"],self.students[v_id]["v_mark"]))
+
+            for i in range(len(self.students[v_id]["voter"])):
+                print("Voter: ",self.students[v_id]["voter"][i])
+
 
         except Exception as err:
             print(err)
 
+
+        while True:
+            try:
+                vote_option = int(input("Press 1 to Vote Again!\nPress 2 to get Main Option!\nPress 3 to Force Quit:"))
+
+                if vote_option == 1:
+                    self.user_sector(l_id)
+                    break
+                elif vote_option == 2:
+                    self.main_option()
+                    break
+                elif vote_option == 3:
+                    exit(1)
+                else:
+                    print("Invalid option after vote!")
+            except Exception as err:
+                print(err)
 
 # ဆက်ရေး ရန် 8-5-2023
 # voter များအား စာရင်း မှတ်ပေးရန်
