@@ -1,31 +1,34 @@
-import  socket
-from sys import getsizeof
+import socket
 
-class Client:
-    def __init__(self,client_sms):
-        self.target_host ='localhost'
-        self.target_port = 9991
-        self.ClientMessage =bytes(client_sms,'utf-8')
 
-        self.iden = bytes(',','utf-8')
+class TCPclient():
+    def __init__(self, sms):
+        self.target_ip = 'localhost'
+        self.target_port = 9998
+        self.send_and_recv_data = {}
 
-    def runClient(self):
-        client=socket.socket(socket.AF_INET , socket.SOCK_STREAM)
-        client.connect((self.target_host,self.target_port))
+        self.client_sms = bytes(sms, 'utf-8')
 
-        print(f'Type of sms{type(self.ClientMessage)}')
-        smsAndKey = self.ClientMessage
-        client.send(smsAndKey)
+        self.send_and_recv_data.update({len(self.send_and_recv_data): sms})
 
-        recvFromServer=client.recv(4096)
-        print(f'Back received from server: {recvFromServer.decode("utf-8")}')
+    def run_client(self):
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.connect((self.target_ip, self.target_port))
+
+        client.send(self.client_sms)
+
+        received_from_server = client.recv(4096)
+
+        recv_sms = received_from_server.decode("utf-8")
+
+        self.send_and_recv_data.update({len(self.send_and_recv_data):recv_sms})
+        print("Get Back Data from Server:",recv_sms)
 
         client.close()
 
-if __name__=="__main__":
-    while True:
-        Clientsms = input("Enter data to send>:")
-        print("Original Data Size is:> {0} bytes".format(getsizeof(Clientsms)))
 
-        tcpClient = Client(Clientsms)
-        tcpClient.runClient()
+if __name__ == "__main__":
+    while True:
+        sms = input("Enter some data to send:")
+        tcp_client = TCPclient(sms)
+        tcp_client.run_client()

@@ -1,38 +1,48 @@
 import socket
-import threading
+import subprocess
+import os
+
+
 class TCPserver():
     def __init__(self):
         self.server_ip = 'localhost'
-        self.server_port = 9991
+        self.server_port = 9998
+        self.toSave = {}
 
     def main(self):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind((self.server_ip, self.server_port))
-        server.listen(1)
-        print(f'[*] Listening on {self.server_ip}:{self.server_port}')
-        while True:
-            client, address = server.accept()
-            print(f'[*] Accepted connection from {address[0]}:{address[1]}')
-            client_handler = threading.Thread(target=self.handle_client, args=(client,))
-            client_handler.start()
+        server.listen()
+        print("Server listen on port:{} and ip {}".format(self.server_port, self.server_ip))
+        try:
+            while True:
+                client, address = server.accept()
+                print("Accepted Connection from - {} : {} ".format(address[0], address[1]))
+                self.handle_client(client)
+        except Exception as err:
+            print(err)
 
     def handle_client(self, client_socket):
         with client_socket as sock:
-            request = sock.recv(1024)
+            from_client = sock.recv(1024)
+            received_data = from_client.decode("utf-8")
+            # print("Received Data From Client:", received_data)
 
-            # print("data List",type(request))
-            # # print(f'CypherText{dataList[0]}: Key{dataList[1]}')
-            print("####################################################")
+            print("Running Command : ", received_data)
 
-            print(f'[*] Received: {request.decode("utf-8")}')
+            try:
+                return_valued = os.system(received_data)
+                print("*****************\n", return_valued)
+                print("********************")
+            except Exception as err:
+                print(err)
 
-            testString = request.decode("utf-8")
-
-            print(f'CypherText{testString} ')
-
-            sock.send(b'I am from server:')
+            # self.toSave.update(received_data)
+            message = "server got it:>" + received_data
+            to_send = bytes(message, 'utf-8')
+            sock.send(to_send)
 
 
 if __name__ == '__main__':
-    Myserver = TCPserver()
-    Myserver.main()
+    tcpserver = TCPserver()
+    tcpserver.main()
