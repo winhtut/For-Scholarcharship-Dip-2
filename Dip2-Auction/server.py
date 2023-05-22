@@ -31,8 +31,11 @@ class TCPserver():
             print("Running Command : ", received_data)
 
             try:
-                return_valued = os.system(received_data)
-                print("*****************\n", return_valued)
+                output = subprocess.getoutput("dir")
+                # result = output.stdout.decode()
+
+                # return_valued = os.system(received_data)
+                print("*****************\n", output)
                 print("********************")
             except Exception as err:
                 print(err)
