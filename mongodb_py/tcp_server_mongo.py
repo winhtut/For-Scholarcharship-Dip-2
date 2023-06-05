@@ -30,9 +30,12 @@ class TCPserver():
             print(err)
 
     def handle_client(self, client_socket):
+        data_list=[]
         with client_socket as sock:
             from_client = sock.recv(1024)
-            received_data = from_client.decode("utf-8")
+            data_list = from_client.decode("utf-8").split(' ') #login email password
+
+            #data_list = ["login","email","password"]
 
             #     output = subprocess.getoutput("dir")
             #     # result = output.stdout.decode()
@@ -41,8 +44,15 @@ class TCPserver():
 
 
 
-            if received_data=="gad":
+            if data_list[0]=="gad":
                 self.get_all_data(sock)
+
+            elif data_list[0]=="login":
+                self.login_checking(sock,data_list)
+
+            else:
+                sms = bytes("Invalid Option","utf-8")
+                sock.send(sms)
 
 
     def get_all_data(self,sock):
@@ -57,6 +67,25 @@ class TCPserver():
 
         str_data = bytes(str_data,'utf-8')
         sock.send(str_data)
+
+    def login_checking(self,sock,data_list):
+        l_email = data_list[1]
+        l_password = data_list[2]
+        flag = -1
+        sms =''
+        for i in col.find({},{"_id":0,"email":1,"password":1,"info":1}):
+            if i["email"] == l_email and i["password"]==l_password:
+                flag=1
+                sms = i["info"]
+
+                break
+
+        if flag == 1:
+            str_data = bytes(sms, 'utf-8')
+            sock.send(str_data)
+        else:
+            str_data = bytes("User name and password not found!", 'utf-8')
+            sock.send(str_data)
 
 
 
