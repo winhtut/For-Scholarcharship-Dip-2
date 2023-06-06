@@ -5,9 +5,9 @@ import json
 
 import pymongo
 
-connection =pymongo.MongoClient("localhost",27017)
-database =connection["ncc_dip2"]
-col =database["user_info"]
+connection = pymongo.MongoClient("localhost", 27017)
+database = connection["ncc_dip2"]
+col = database["user_info"]
 
 
 class TCPserver():
@@ -30,52 +30,50 @@ class TCPserver():
             print(err)
 
     def handle_client(self, client_socket):
-        data_list=[]
+        data_list = []
         with client_socket as sock:
             from_client = sock.recv(1024)
-            data_list = from_client.decode("utf-8").split(' ') #login email password
+            data_list = from_client.decode("utf-8").split(' ')  # login email password
 
-            #data_list = ["login","email","password"]
+            # data_list = ["login","email","password"]
 
             #     output = subprocess.getoutput("dir")
             #     # result = output.stdout.decode()
             #
             #     # return_valued = os.system(received_data)
 
-
-
-            if data_list[0]=="gad":
+            if data_list[0] == "gad":
+                print("received command :", data_list[0])
                 self.get_all_data(sock)
 
-            elif data_list[0]=="login":
-                self.login_checking(sock,data_list)
+            elif data_list[0] == "login":
+                self.login_checking(sock, data_list)
 
             else:
-                sms = bytes("Invalid Option","utf-8")
+                sms = bytes("Invalid Option", "utf-8")
                 sock.send(sms)
 
-
-    def get_all_data(self,sock):
-        data:dict ={}
-        id=0
-        for i in col.find({},{'_id':0}):
+    def get_all_data(self, sock):
+        data: dict = {}
+        id = 0
+        for i in col.find({}, {"_id":0,"email":1,"password":1}):
             id = len(data)
-            dataform={"name":i["name"],"email":i["email"]}
-            data.update({id:dataform})
+            dataform = {"email": i["email"], "password": i["password"]}
+            data.update({id: dataform})
+        print(data)
+        str_data = json.dumps(data)
 
-        str_data =json.dumps(data)
-
-        str_data = bytes(str_data,'utf-8')
+        str_data = bytes(str_data, 'utf-8')
         sock.send(str_data)
 
-    def login_checking(self,sock,data_list):
+    def login_checking(self, sock, data_list):
         l_email = data_list[1]
         l_password = data_list[2]
         flag = -1
-        sms =''
-        for i in col.find({},{"_id":0,"email":1,"password":1,"info":1}):
-            if i["email"] == l_email and i["password"]==l_password:
-                flag=1
+        sms = ''
+        for i in col.find({}, {"_id": 0, "email": 1, "password": 1, "info": 1}):
+            if i["email"] == l_email and i["password"] == l_password:
+                flag = 1
                 sms = i["info"]
 
                 break
@@ -86,7 +84,6 @@ class TCPserver():
         else:
             str_data = bytes("User name and password not found!", 'utf-8')
             sock.send(str_data)
-
 
 
 if __name__ == '__main__':

@@ -38,7 +38,7 @@ class TCPclient():
 
     def get_all_data(self, sms):
         client = self.client_runner()
-        sms = bytes(sms, "utf-8")
+        sms = bytes(sms+' ', "utf-8")
         client.send(sms)
         received_from_server = client.recv(4096)
         # print(received_from_server.decode("utf-8"))
